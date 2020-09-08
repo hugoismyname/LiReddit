@@ -11,6 +11,6 @@ export default {
   },
   entities: [Post, User],
   dbName: "smartFitness",
-  debug: !__prod__,
+  debug: true,
   type: "postgresql",
 } as Parameters<typeof MikroORM.init>[0];
