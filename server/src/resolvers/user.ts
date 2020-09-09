@@ -67,7 +67,6 @@ export class UserResolver {
         .returning("*");
       user = result[0];
     } catch (error) {
-      console.log(error);
       if (error.code === "23505") {
         return {
           errors: [
@@ -81,7 +80,6 @@ export class UserResolver {
     }
 
     req.session.userId = user.id;
-
     return user;
   }
 
