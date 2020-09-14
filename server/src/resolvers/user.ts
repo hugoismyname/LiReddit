@@ -39,36 +39,42 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async changePassword(
     @Arg("token") token: string,
-    @Arg("newPassword") newPassword: string
-    @Ctx() {em,redis,req}: MyContext
-  ) :Promise<UserResponse>{
+    @Arg("newPassword") newPassword: string,
+    @Ctx() { em, redis, req }: MyContext
+  ): Promise<UserResponse> {
     const errors = validateInput(newPassword);
     if (errors) {
       return { errors };
     }
-    const userId = await redis.get(FORGET_PASSWORD_PREFIX+token)
-    if(!userId){
-      return{
-        errors:[{
-          field:"token",
-          message:"token expired"
-        }]
-      }
+    const key = FORGET_PASSWORD_PREFIX + token;
+    const userId = await redis.get(key);
+    if (!userId) {
+      return {
+        errors: [
+          {
+            field: "token",
+            message: "token expired",
+          },
+        ],
+      };
     }
-    const user = await em.findOne(User, {id: parseInt(userId)})
-    if(!user){
-      return{
-        errors:[{
-          field:"token",
-          message:"user does not exist"
-        }]
-      }
+    const user = await em.findOne(User, { id: parseInt(userId) });
+    if (!user) {
+      return {
+        errors: [
+          {
+            field: "token",
+            message: "user does not exist",
+          },
+        ],
+      };
     }
-    user.password = await argon2.hash(newPassword)
-    await em.persistAndFlush(user)
+    user.password = await argon2.hash(newPassword);
+    await em.persistAndFlush(user);
+    await redis.del(key);
     //log in user after change password
-    req.session.userId = user.id
-    return {user};
+    req.session.userId = user.id;
+    return { user };
   }
   @Mutation(() => Boolean)
   async forgotPassword(
