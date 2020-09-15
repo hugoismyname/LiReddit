@@ -30,9 +30,9 @@ const main = async () => {
   // console.log(conn);
   const app = express();
   console.log(conn);
+
   const RedisStore = connectRedis(session);
   const redis = new Redis();
-
   app.use(
     cors({
       origin: "http://localhost:3000",
