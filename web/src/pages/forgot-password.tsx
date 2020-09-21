@@ -22,7 +22,7 @@ const ForgotPassword: React.FC<{}> = ({}) => {
         {({ isSubmitting }) =>
           complete ? (
             <Box>
-              if an account with that email exists, we sent you can email
+              If an account with that email exists, we sent you an email.
             </Box>
           ) : (
             <Form>

@@ -27,9 +27,8 @@ const main = async () => {
     entities: [Post, User],
   });
   // await conn.runMigrations();
-  // console.log(conn);
-  const app = express();
   console.log(conn);
+  const app = express();
 
   const RedisStore = connectRedis(session);
   const redis = new Redis();

@@ -34,6 +34,7 @@ const ChangePassword: NextPage<{ token: string }> = () => {
           } else if (response.data?.changePassword.user) {
             router.push("/");
           }
+          console.log(response.data?.changePassword.errors);
         }}
       >
         {({ isSubmitting }) => (

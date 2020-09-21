@@ -11,7 +11,7 @@ import {
 import { betterUpdateQuery } from "../utils/betterUpdateQuery";
 import { pipe, tap } from "wonka";
 import { Exchange } from "urql";
-import { Router } from "next/router";
+import Router from "next/router";
 
 export const errorExchange: Exchange = ({ forward }) => (ops$) => {
   return pipe(

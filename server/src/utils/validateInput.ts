@@ -2,7 +2,7 @@ export const validateInput = (field: string) => {
   if (field.length <= 2) {
     return [
       {
-        field: "password",
+        field: "newPassword",
         message: "length must be greater than 2",
       },
     ];
@@ -11,7 +11,7 @@ export const validateInput = (field: string) => {
   if (field.includes("@")) {
     return [
       {
-        field: "password",
+        field: "newPassword",
         message: "cannot include an @",
       },
     ];
