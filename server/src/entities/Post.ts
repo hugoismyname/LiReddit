@@ -6,9 +6,11 @@ import {
   UpdateDateColumn,
   BaseEntity,
   ManyToOne,
+  OneToMany,
 } from "typeorm";
 import { ObjectType, Field } from "type-graphql";
 import { User } from "./User";
+import { UpVote } from "./UpVote";
 
 @ObjectType()
 @Entity()
@@ -36,6 +38,10 @@ export class Post extends BaseEntity {
   @Field()
   @ManyToOne(() => User, (user) => user.posts)
   creator: User;
+
+  @Field()
+  @OneToMany(() => UpVote, (upvote) => upvote.post)
+  votes: UpVote;
 
   @Field(() => String)
   @CreateDateColumn()

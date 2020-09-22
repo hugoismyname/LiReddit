@@ -16,6 +16,7 @@ import { Post } from "../entities/Post";
 import { MyContext } from "../types";
 import { isAuth } from "../middleware/isAuth";
 import { getConnection } from "typeorm";
+import { UpVote } from "../entities/UpVote";
 
 @InputType()
 class PostInput {
@@ -113,9 +114,38 @@ export class PostResolver {
     }
     return post;
   }
+
   @Mutation(() => Boolean)
   async deletePost(@Arg("id") id: number): Promise<boolean> {
     await Post.delete(id);
+    return true;
+  }
+
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
+  async vote(
+    @Arg("postId") postId: number,
+    @Arg("value") value: number,
+    @Ctx() { req }: MyContext
+  ) {
+    const vote = value !== -1;
+    const realVote = vote ? 1 : -1;
+    const { userId } = req.session;
+
+    await getConnection().query(
+      `
+      START TRANSACTION;
+
+      insert into up_vote ("postId","userId",value)
+      values(${postId},${userId},${value}); 
+
+      update post 
+      set points = points + ${realVote}
+      where id = ${postId};
+      
+      COMMIT;
+    `
+    );
     return true;
   }
 }
