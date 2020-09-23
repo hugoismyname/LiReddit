@@ -16,7 +16,6 @@ import { Post } from "../entities/Post";
 import { MyContext } from "../types";
 import { isAuth } from "../middleware/isAuth";
 import { getConnection } from "typeorm";
-import { UpVote } from "../entities/UpVote";
 
 @InputType()
 class PostInput {
@@ -38,12 +37,16 @@ export class PostResolver {
   textSnippet(@Root() root: Post) {
     return root.text.slice(0, 50);
   }
-
-  @Query(() => PaginatedPosts)
+  // @FieldResolver(() => User)
+  // creator(@Root() post: Post, @Ctx() { req }: MyContext) {
+  //   return userLoader.load(post.creatorId);
+  // }
+  @Query(() => PaginatedPosts, { nullable: true })
   async posts(
     @Arg("limit", () => Int) limit: number,
     @Arg("cursor", () => String, { nullable: true }) cursor: string | null
   ): Promise<PaginatedPosts> {
+    // 20 -> 21
     const realLimit = Math.min(50, limit);
     const reaLimitPlusOne = realLimit + 1;
 
@@ -55,30 +58,17 @@ export class PostResolver {
 
     const posts = await getConnection().query(
       `
-    select p.*
+    select p.*,
+    json_build_object('id',u.id,'username',u.username) creator
     from post p
+    inner join public.user u on u.id = p."creatorId"
     ${cursor ? `where p."createdAt" < $2` : ""}
     order by p."createdAt" DESC
     limit $1
     `,
       replacements
     );
-    // const qb = getConnection()
-    //   .getRepository(Post)
-    //   .createQueryBuilder("posts")
-    //   .innerJoinAndSelect(
-    //     "posts.creator",
-    //     "user",
-    //     '"user.id = posts."creatorId"'
-    //   )
-    //   .orderBy('"posts.createdAt"', "DESC")
-    //   .take(reaLimitPlusOne);
-    // if (cursor) {
-    //   qb.where('"posts.createdAt" < :cursor', {
-    //     cursor: new Date(parseInt(cursor)),
-    //   });
-    // }
-    // const posts = await qb.getMany();
+
     return {
       posts: posts.slice(0, realLimit),
       hasMore: posts.length === reaLimitPlusOne,

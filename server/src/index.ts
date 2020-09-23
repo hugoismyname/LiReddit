@@ -27,8 +27,7 @@ const main = async () => {
     migrations: [path.join(__dirname, "./migrations/*")],
     entities: [Post, User, UpVote],
   });
-  // await conn.runMigrations();
-  console.log(conn);
+  await conn.runMigrations();
   const app = express();
 
   const RedisStore = connectRedis(session);
