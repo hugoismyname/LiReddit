@@ -42,10 +42,27 @@ export class PostResolver {
   // creator(@Root() post: Post, @Ctx() { req }: MyContext) {
   //   return userLoader.load(post.creatorId);
   // }
+  // @FieldResolver(() => Int, { nullable: true })
+  // async voteStatus(
+  //   @Root() post: Post,
+  //   @Ctx() { updootLoader, req }: MyContext
+  // ) {
+  //   if (!req.session.userId) {
+  //     return null;
+  //   }
+
+  //   const updoot = await updootLoader.load({
+  //     postId: post.id,
+  //     userId: req.session.userId,
+  //   });
+
+  //   return updoot ? updoot.value : null;
+  // }
   @Query(() => PaginatedPosts, { nullable: true })
   async posts(
     @Arg("limit", () => Int) limit: number,
-    @Arg("cursor", () => String, { nullable: true }) cursor: string | null
+    @Arg("cursor", () => String, { nullable: true }) cursor: string | null,
+    @Ctx() { req }: MyContext
   ): Promise<PaginatedPosts> {
     // 20 -> 21
     const realLimit = Math.min(50, limit);
@@ -53,17 +70,28 @@ export class PostResolver {
 
     const replacements: any[] = [reaLimitPlusOne];
 
+    if (req.session.userId) {
+      replacements.push(req.session.userId);
+    }
+    let cursorIdx = 3;
     if (cursor) {
       replacements.push(new Date(parseInt(cursor)));
+      cursorIdx = replacements.length;
     }
-
     const posts = await getConnection().query(
       `
     select p.*,
-    json_build_object('id',u.id,'username',u.username) creator
+    json_build_object(
+      'id',u.id,'username',u.username
+      ) creator,
+      ${
+        req.session.userId
+          ? '(select value from up_vote where "userId" = $2 and "postId" = p.id) "voteStatus"'
+          : 'null as "voteStatus"'
+      }
     from post p
     inner join public.user u on u.id = p."creatorId"
-    ${cursor ? `where p."createdAt" < $2` : ""}
+    ${cursor ? `where p."createdAt" < $${cursorIdx}` : ""}
     order by p."createdAt" DESC
     limit $1
     `,
@@ -152,7 +180,7 @@ export class PostResolver {
       await getConnection().transaction(async (tm) => {
         await tm.query(
           `
-    insert into upvote ("userId", "postId", value)
+    insert into up_vote ("userId", "postId", value)
     values ($1, $2, $3)
         `,
           [userId, postId, realVote]
