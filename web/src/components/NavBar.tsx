@@ -12,10 +12,8 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
 
   let navLinks = null;
 
-  //data is loading
   if (fetching) {
-    navLinks = null;
-    //user not logged in
+    // user not logged in
   } else if (!data?.me) {
     navLinks = (
       <>
@@ -23,18 +21,24 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
           <Link mr={2}>login</Link>
         </NextLink>
         <NextLink href="/register">
-          <Link mr={2}>register</Link>
+          <Link>register</Link>
         </NextLink>
       </>
     );
-    // user logged in
+    // user is logged in
   } else {
     navLinks = (
-      <Flex>
+      <Flex align="center">
+        <NextLink href="/create-post">
+          <Button as={Link} mr={4}>
+            create post
+          </Button>
+        </NextLink>
         <Box mr={2}>{data.me.username}</Box>
         <Button
-          onClick={() => {
-            logout();
+          onClick={async () => {
+            await logout();
+            await apolloClient.resetStore();
           }}
           isLoading={logoutFetching}
           variant="link"

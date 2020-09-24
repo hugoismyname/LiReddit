@@ -1,9 +1,18 @@
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { withUrqlClient } from "next-urql";
-import { usePostsQuery } from "../generated/graphql";
+import { useDeletePostMutation, usePostsQuery } from "../generated/graphql";
 import { Layout } from "../components/Layout";
 import React, { useState } from "react";
-import { Box, Button, Flex, Heading, Link, Stack, Text } from "@chakra-ui/core";
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  IconButton,
+  Link,
+  Stack,
+  Text,
+} from "@chakra-ui/core";
 import NextLink from "next/link";
 import { UpvoteSection } from "../components/UpvoteSection";
 
@@ -15,6 +24,7 @@ const Index = () => {
   const [{ data, fetching }] = usePostsQuery({
     variables,
   });
+  const [, deletePost] = useDeletePostMutation();
   if (!fetching && !data) {
     return (
       <div>
@@ -24,10 +34,6 @@ const Index = () => {
   }
   return (
     <Layout>
-      <NextLink href="/create-post">
-        <Link>create post</Link>
-      </NextLink>
-      <br />
       {!data && fetching ? (
         <div>...loading</div>
       ) : (
@@ -35,14 +41,27 @@ const Index = () => {
           {data!.posts.posts.map((p) => (
             <Flex key={p.id} shadow="md" borderLeftWidth="1px" padding={4}>
               <UpvoteSection post={p} />
-              <Box ml={8}>
+              <Box flex={1} ml={8}>
                 <NextLink href="/post/[id]" as={`/post/${p.id}`}>
                   <Link>
                     <Heading fontSize="xl">{p.title}</Heading>
                   </Link>
                 </NextLink>
                 <Text>posted by {p.creator.username}</Text>
-                <Text mt={4}>{p.textSnippet}</Text>
+                <Flex align="center">
+                  <Text flex={1} mt={4}>
+                    {p.textSnippet}
+                  </Text>
+                  <IconButton
+                    icon="delete"
+                    aria-label="Delete Post"
+                    onClick={() => {
+                      deletePost({
+                        id: p.id,
+                      });
+                    }}
+                  />
+                </Flex>
               </Box>
             </Flex>
           ))}
