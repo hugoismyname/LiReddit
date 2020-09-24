@@ -36,7 +36,11 @@ const Index = () => {
             <Flex key={p.id} shadow="md" borderLeftWidth="1px" padding={4}>
               <UpvoteSection post={p} />
               <Box ml={8}>
-                <Heading fontSize="xl">{p.title}</Heading>
+                <NextLink href="/post/[id]" as={`/post/${p.id}`}>
+                  <Link>
+                    <Heading fontSize="xl">{p.title}</Heading>
+                  </Link>
+                </NextLink>
                 <Text>posted by {p.creator.username}</Text>
                 <Text mt={4}>{p.textSnippet}</Text>
               </Box>
