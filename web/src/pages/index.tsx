@@ -53,6 +53,14 @@ const Index = () => {
                     <Text flex={1} mt={4}>
                       {p.textSnippet}
                     </Text>
+                    <NextLink href="/post/edit/[id]" as={`/post/edit/${p.id}`}>
+                      <IconButton
+                        as={Link}
+                        mr={4}
+                        icon="edit"
+                        aria-label="Edit Post"
+                      />
+                    </NextLink>
                     <IconButton
                       icon="delete"
                       aria-label="Delete Post"
