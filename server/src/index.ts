@@ -15,6 +15,7 @@ import path from "path";
 import { Post } from "./entities/Post";
 import { User } from "./entities/User";
 import { UpVote } from "./entities/UpVote";
+import { createUserLoader } from "./utils/createUserLoader";
 
 const main = async () => {
   const conn = await createConnection({
@@ -27,7 +28,7 @@ const main = async () => {
     migrations: [path.join(__dirname, "./migrations/*")],
     entities: [Post, User, UpVote],
   });
-  await conn.runMigrations();
+  console.log(conn);
   const app = express();
 
   const RedisStore = connectRedis(session);
@@ -63,7 +64,12 @@ const main = async () => {
       resolvers: [HelloResolver, PostResolver, UserResolver],
       validate: false,
     }),
-    context: ({ req, res }) => ({ req, res, redis }),
+    context: ({ req, res }) => ({
+      req,
+      res,
+      redis,
+      userLoader: createUserLoader(),
+    }),
   });
 
   apolloServer.applyMiddleware({
