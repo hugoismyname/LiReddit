@@ -3,6 +3,7 @@ import { Form, Formik } from "formik";
 import { withUrqlClient } from "next-urql";
 import { useRouter } from "next/router";
 import React from "react";
+import { EditDeletePostButtons } from "../../../components/EditDeleteButtons";
 import { InputField } from "../../../components/InputField";
 import { Layout } from "../../../components/Layout";
 import {
@@ -66,6 +67,10 @@ const EditPost = ({}) => {
             >
               update post
             </Button>
+            <EditDeletePostButtons
+              id={data.post?.id}
+              creatorId={data.post?.creatorId}
+            />
           </Form>
         )}
       </Formik>

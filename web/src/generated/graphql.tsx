@@ -152,7 +152,7 @@ export type UsernamePasswordInput = {
 
 export type PostSnippetFragment = (
   { __typename?: 'Post' }
-  & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'textSnippet' | 'points' | 'voteStatus'>
+  & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'textSnippet' | 'points' | 'voteStatus' | 'creatorId'>
   & { creator: (
     { __typename?: 'User' }
     & Pick<User, 'id' | 'username'>
@@ -320,7 +320,7 @@ export type PostQuery = (
   { __typename?: 'Query' }
   & { post?: Maybe<(
     { __typename?: 'Post' }
-    & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'points' | 'text' | 'voteStatus'>
+    & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'points' | 'text' | 'voteStatus' | 'creatorId'>
     & { creator: (
       { __typename?: 'User' }
       & Pick<User, 'id' | 'username'>
@@ -355,6 +355,7 @@ export const PostSnippetFragmentDoc = gql`
   textSnippet
   points
   voteStatus
+  creatorId
   creator {
     id
     username
@@ -517,6 +518,7 @@ export const PostDocument = gql`
     points
     text
     voteStatus
+    creatorId
     creator {
       id
       username
