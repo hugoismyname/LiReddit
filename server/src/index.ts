@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import "dotenv-safe/config";
 import { __prod__, COOKIE_NAME } from "./constants";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
@@ -20,9 +21,7 @@ import { createUserLoader } from "./utils/createUserLoader";
 const main = async () => {
   const conn = await createConnection({
     type: "postgres",
-    database: "smartFitness",
-    username: "postgres",
-    password: "iforgot0",
+    url: process.env.DATABASE_URL,
     logging: true,
     synchronize: true,
     migrations: [path.join(__dirname, "./migrations/*")],
@@ -32,7 +31,8 @@ const main = async () => {
   const app = express();
 
   const RedisStore = connectRedis(session);
-  const redis = new Redis();
+  const redis = new Redis(process.env.REDIS_URL);
+  app.set("proxy", 1);
   app.use(
     cors({
       origin: "http://localhost:3000",
@@ -53,8 +53,7 @@ const main = async () => {
         secure: __prod__, // cookie only works in https
       },
       saveUninitialized: false,
-      //change before going live
-      secret: "keyboard dog",
+      secret: process.env.SESSION_SECRET,
       resave: false,
     })
   );
@@ -77,9 +76,7 @@ const main = async () => {
     cors: false,
   });
 
-  app.listen(4000, () => {
-    console.log("server started on localhost:4000");
-  });
+  app.listen(parseInt(process.env.PORT), () => {});
 };
 
 main().catch((err) => {
